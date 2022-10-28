@@ -3,7 +3,7 @@ import { errorToResponse } from 'https://deno.land/x/dtils@1.6.1/lib/http.ts'
 
 export * from 'https://deno.land/x/dtils@1.6.1/lib/errors.ts'
 
-export type ErrorInterceptorFn = (message: string, stack: string) => unknown
+export type ErrorInterceptorFn = (message: string, fullError: string) => unknown
 export type RequestInterceptorFn = (request: Request, url: URL) => unknown
 export type ResponseInterceptorFn = (response: Response) => unknown
 

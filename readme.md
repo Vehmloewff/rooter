@@ -7,8 +7,8 @@ An simple, small, and efficient router for Deno and Deno Deploy.
 ## Usage
 
 ```ts
-import { makeHandler, makeRoute, NotFoundError } from 'https://deno.land/rooter@1.0.0/mod.ts'
-import { serve } from 'https://deno.land/std@0.40.0/http/mod.ts'
+import { makeHandler, makeRoute, NotFoundError } from 'https://deno.land/rooter/mod.ts'
+import { serve } from 'https://deno.land/std/http/mod.ts'
 
 const postRoute = makeRoute('GET /blog/posts/:slug', ({ params }) => {
 	const postSlug = params.slug
@@ -45,3 +45,23 @@ When an error is thrown inside a makeRoute handler, it is converted into an http
 - `UserError` - 400
 
 If one of these errors is thrown, the associated status code will placed on the response.
+
+### Intercepting
+
+Intercepting does not change the normal flow of a request and it is not required for requests to be processed and response returned. It simply calls listening handler functions at certain times.
+
+```ts
+import { setRequestInterceptor, setResponseInterceptor, setErrorInterceptor } from 'https://deno.land/rooter/mod.ts'
+
+setRequestInterceptor((request, url) => {
+	// called as soon as a request comes in
+})
+
+setResponseInterceptor((response) => {
+	// called as soon as a response is returned from the handler of a `makeRoute` function
+})
+
+setErrorInterceptor((message, fullError) => {
+	// called as soon as an error is thrown inside the handler of a `makeRoute` function
+})
+```
