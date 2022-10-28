@@ -1,4 +1,7 @@
 import { parsePattern } from './pattern.ts'
+import { errorToResponse } from 'https://deno.land/x/dtils@1.6.1/lib/http.ts'
+
+export * from 'https://deno.land/x/dtils@1.6.1/lib/errors.ts'
 
 export interface RouteHandlerParams {
 	params: Record<string, string>
@@ -35,10 +38,14 @@ export function makeRoute(pattern: string, handler: (params: RouteHandlerParams)
 		const params = exec(url.pathname, request.method)
 		if (!params) return null
 
-		const response = await handler({ params, request, url })
-		if (!response) return null
+		try {
+			const response = await handler({ params, request, url })
+			if (!response) return null
 
-		return response
+			return response
+		} catch (error) {
+			return errorToResponse(error)
+		}
 	}
 }
 
