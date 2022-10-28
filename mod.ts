@@ -3,6 +3,14 @@ import { errorToResponse } from 'https://deno.land/x/dtils@1.6.1/lib/http.ts'
 
 export * from 'https://deno.land/x/dtils@1.6.1/lib/errors.ts'
 
+export type ErrorInterceptorFn = (message: string, stack: string) => unknown
+export type RequestInterceptorFn = (request: Request, url: URL) => unknown
+export type ResponseInterceptorFn = (response: Response) => unknown
+
+let errorInterceptorFn: ErrorInterceptorFn | null = null
+let requestInterceptorFn: RequestInterceptorFn | null = null
+let responseInterceptorFn: ResponseInterceptorFn | null = null
+
 export interface RouteHandlerParams {
 	params: Record<string, string>
 	url: URL
@@ -44,6 +52,7 @@ export function makeRoute(pattern: string, handler: (params: RouteHandlerParams)
 
 			return response
 		} catch (error) {
+			if (errorInterceptorFn) errorInterceptorFn(error.message, error.stack)
 			return errorToResponse(error)
 		}
 	}
@@ -55,14 +64,33 @@ export function makeRoute(pattern: string, handler: (params: RouteHandlerParams)
  * Takes in an array of routes that can be generated with the `makeRoute` function.
  */
 export function makeHandler(routes: Route[]) {
+	const intercept = (response: Response) => {
+		if (responseInterceptorFn) responseInterceptorFn(response)
+		return response
+	}
+
 	return async (request: Request): Promise<Response> => {
 		const url = new URL(request.url)
 
+		if (requestInterceptorFn) requestInterceptorFn(request, url)
+
 		for (const route of routes) {
 			const response = await route(request, url)
-			if (response) return response
+			if (response) return intercept(response)
 		}
 
-		return new Response('not found', { status: 404 })
+		return intercept(new Response('not found', { status: 404 }))
 	}
+}
+
+export function setErrorInterceptor(fn: ErrorInterceptorFn) {
+	errorInterceptorFn = fn
+}
+
+export function setRequestInterceptor(fn: RequestInterceptorFn) {
+	requestInterceptorFn = fn
+}
+
+export function setResponseInterceptor(fn: ResponseInterceptorFn) {
+	responseInterceptorFn = fn
 }
