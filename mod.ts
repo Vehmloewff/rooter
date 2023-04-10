@@ -70,6 +70,9 @@ export function makeHandler(routes: Route[]) {
 	}
 
 	return async (request: Request): Promise<Response> => {
+		// Respond with ok to all options requests
+		if (request.method === 'OPTIONS') return intercept(new Response('ok'))
+
 		const url = new URL(request.url)
 
 		if (requestInterceptorFn) requestInterceptorFn(request, url)
@@ -93,4 +96,12 @@ export function setRequestInterceptor(fn: RequestInterceptorFn) {
 
 export function setResponseInterceptor(fn: ResponseInterceptorFn) {
 	responseInterceptorFn = fn
+}
+
+export function enableCors(domains = '*'): ResponseInterceptorFn {
+	return (response) => {
+		response.headers.append('access-control-allow-origin', domains)
+		response.headers.append('access-control-request-headers', '*')
+		response.headers.append('access-control-request-method', '*')
+	}
 }
