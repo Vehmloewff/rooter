@@ -6,39 +6,37 @@ A simple, small, and efficient router for Deno and Deno Deploy.
 
 ## Usage
 
-```ts
+```typescript
 import { makeHandler, makeRoute, NotFoundError } from 'https://deno.land/rooter/mod.ts'
 import { serve } from 'https://deno.land/std/http/mod.ts'
 
 const postRoute = makeRoute('GET /blog/posts/:slug', ({ params }) => {
-	const postSlug = params.slug
+    const postSlug = params.slug
 
-	// ...
+    // ...
 
-	return Response.json({ ... })
+    return Response.json({ ... })
 })
 
 const handler = makeHandler([
-	// Insert a route inline
-	makeRoute('GET /', () => Response.json({ ... })),
+    // Insert a route inline
+    makeRoute('GET /', () => Response.json({ ... })),
 
-	// ... or make use of a predefined route
-	postRoute,
-	
-	// Optionally add a catchall for 404s
-	makeRoute('*', () => new NotFoundError('Route does not exist'))
+    // ... or make use of a predefined route
+    postRoute,
+
+    // Optionally add a catchall for 404s
+    makeRoute('*', () => new NotFoundError('Route does not exist'))
 ])
 
 await serve(handler, { port: 8000 })
 ```
 
-### Error Handling
+### Error Handling 
 
 <!-- TODO: add note about response error handling methodology -->
 
-When an error is thrown inside a makeRoute handler, it is converted into an http response. Generally this just means writing message of
-error to the body of the response and setting the status code to 500. There are, however, several error classes exported from `mod.ts` that
-are associated with certain status codes:
+ When an error is thrown inside a makeRoute handler, it is converted into an http response. Generally this just means writing message of error to the body of the response and setting the status code to 500\. There are, however, several error classes exported from `mod.ts` that are associated with certain status codes:
 
 - `NotFoundError` - 404
 - `BadParamsError` - 400
@@ -50,29 +48,28 @@ If one of these errors is thrown, the associated status code will placed on the 
 
 ### Intercepting
 
-Intercepting does not change the normal flow of a request and it is not required for requests to be processed and response returned. It
-simply calls listening handler functions at certain times.
+Intercepting does not change the normal flow of a request and it is not required for requests to be processed and response returned. It simply calls listening handler functions at certain times.
 
-```ts
+```typescript
 import { setErrorInterceptor, setRequestInterceptor, setResponseInterceptor } from 'https://deno.land/rooter/mod.ts'
 
 setRequestInterceptor((request, url) => {
-	// called as soon as a request comes in
+    // called as soon as a request comes in
 })
 
 setResponseInterceptor((response) => {
-	// called as soon as a response is returned from the handler of a `makeRoute` function
+    // called as soon as a response is returned from the handler of a `makeRoute` function
 })
 
 setErrorInterceptor((message, fullError) => {
-	// called as soon as an error is thrown inside the handler of a `makeRoute` function
+    // called as soon as an error is thrown inside the handler of a `makeRoute` function
 })
 ```
 
 ### CORS
 
-```ts
-import { enableCORS } from 'https://deno.land/rooter/mod.ts'
+```typescript
+import { enableCors, setResponseInterceptor } from 'https://deno.land/rooter/mod.ts'
 
-enableCORS('*')
+setResponseInterceptor(enableCors("*"))
 ```
