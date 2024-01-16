@@ -7,8 +7,7 @@ A simple, small, and efficient router for Deno and Deno Deploy.
 ## Usage
 
 ```typescript
-import { makeHandler, makeRoute, NotFoundError } from 'https://deno.land/rooter/mod.ts'
-import { serve } from 'https://deno.land/std/http/mod.ts'
+import { makeHandler, makeRoute, NotFoundError } from 'https://deno.land/x/rooter/mod.ts'
 
 const postRoute = makeRoute('GET /blog/posts/:slug', ({ params }) => {
     const postSlug = params.slug
@@ -29,7 +28,7 @@ const handler = makeHandler([
     makeRoute('*', () => new NotFoundError('Route does not exist'))
 ])
 
-await serve(handler, { port: 8000 })
+await Deno.serve(handler)
 ```
 
 ### Error Handling 
@@ -51,7 +50,7 @@ If one of these errors is thrown, the associated status code will placed on the 
 Intercepting does not change the normal flow of a request and it is not required for requests to be processed and response returned. It simply calls listening handler functions at certain times.
 
 ```typescript
-import { setErrorInterceptor, setRequestInterceptor, setResponseInterceptor } from 'https://deno.land/rooter/mod.ts'
+import { setErrorInterceptor, setRequestInterceptor, setResponseInterceptor } from 'https://deno.land/x/rooter/mod.ts'
 
 setRequestInterceptor((request, url) => {
     // called as soon as a request comes in
@@ -69,7 +68,7 @@ setErrorInterceptor((message, fullError) => {
 ### CORS
 
 ```typescript
-import { enableCors, setResponseInterceptor } from 'https://deno.land/rooter/mod.ts'
+import { enableCors, setResponseInterceptor } from 'https://deno.land/x/rooter/mod.ts'
 
 setResponseInterceptor(enableCors("*"))
 ```

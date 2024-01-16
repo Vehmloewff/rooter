@@ -1,7 +1,18 @@
 import { parsePattern } from './pattern.ts'
-import { errorToResponse } from 'https://deno.land/x/dtils@1.6.1/lib/http.ts'
+import { errorToResponse } from './deps.ts'
 
-export * from 'https://deno.land/x/dtils@1.6.1/lib/errors.ts'
+export {
+	BadParamsError,
+	ForbiddenError,
+	isBadParamsError,
+	isForbiddenError,
+	isNotAuthenticatedError,
+	isNotFoundError,
+	isUserError,
+	NotAuthenticatedError,
+	NotFoundError,
+	UserError,
+} from './deps.ts'
 
 export type ErrorInterceptorFn = (message: string, fullError: string) => unknown
 export type RequestInterceptorFn = (request: Request, url: URL) => unknown
@@ -12,7 +23,7 @@ let requestInterceptorFn: RequestInterceptorFn | null = null
 let responseInterceptorFn: ResponseInterceptorFn | null = null
 
 export interface RouteHandlerParams {
-	params: Record<string, string>
+	params: Record<string, string | undefined>
 	url: URL
 	request: Request
 }
